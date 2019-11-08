@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+# shellcheck source=/dev/null
+for file in functions/*.sh; do
+    source "$file"
+done
+
+"$@"
