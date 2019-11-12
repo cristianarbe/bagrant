@@ -1,9 +1,27 @@
 #!/bin/bash
 set -e
 
-# shellcheck source=/dev/null
-for file in functions/*.sh; do
-    source "$file"
-done
+alias up="VBoxManage startvm vm"
+
+alias snapshot="copy vm repo"
+
+alias reload="copy repo vm"
+
+destroy() {
+    read -pr "Are you sure you want to destroy your vm?" answer
+    [[ $answer != "y" ]] && exit || rm -r vm/*
+}
+
+copy() {
+    rsync -Pa "$1/" "$2"
+}
+
+init() {
+    if [[ -z $(ls -A) ]]; then
+        copy repo vm
+    else
+        echo 'VM already exists.'
+    fi
+}
 
 "$@"
