@@ -1,11 +1,19 @@
 #!/bin/bash
 set -e
 
-alias up="VBoxManage startvm vm"
+up(){
+	VBoxManage startvm vm
+}
 
-alias snapshot="copy vm repo"
+snapshot(){
+	copy vm repo
+}
 
-alias reload="copy repo vm"
+reload(){
+	copy repo vm
+}
+
+vbm="VBoxManage modifyvm vm"
 
 destroy() {
     read -pr "Are you sure you want to destroy your vm?" answer
@@ -17,11 +25,15 @@ copy() {
 }
 
 init() {
-    if [[ -z $(ls -A) ]]; then
-        copy repo vm
-    else
-        echo 'VM already exists.'
-    fi
+    copy repo vm
+    echo "Creating VBox VM..."
+    VBoxManage createvm --name vm --ostype Debian_64 --register
+    $vbm --bridgeadapter1 wlan0
+    $vbm --nic1 bridged
+    $vbm --memory 6144
+    VBoxManage storagectl vm --name "SATA Controller" --add sata --controller IntelAhci
+    VBoxManage storageattach vm --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium vm/disk.vdi
+    echo "Copying repo to vm..."
 }
 
 "$@"
